@@ -27,7 +27,7 @@ MHW events are detected per grid cell using `detect()` in `alternew_hobday1.py`,
 
 See `alternew_hobday1.py` for the detailed implementation and assumptions. :contentReference[oaicite:2]{index=2}
 
-# Chapter 5 (2024 Test) – CNN2D-LSTM Forecast + MHW Products Pipeline
+# 2024 Test – CNN2D-LSTM Forecast + MHW Products Pipeline
 
 This folder contains the reproducible workflow used in Chapter 5 to:
 1) train a 1-step CNN2D-LSTM model (trained on 1982–2023),
@@ -43,7 +43,7 @@ The MHW definition and climatology/threshold framework are described in Chapter 
 ## Scripts
 
 ### 1) Training (1982–2023)
-**`chap5_2024train1.py`** :contentReference[oaicite:13]{index=13}  
+**`chap5_2024train1.py`**
 Trains a 1-step CNN2D-LSTM with sequence length 15 (iterative forecasting setup).
 
 **Outputs**
@@ -54,7 +54,7 @@ Trains a 1-step CNN2D-LSTM with sequence length 15 (iterative forecasting setup)
 ---
 
 ### 2) Precompute pseudo-realtime predictions for 2024 (lead 0..6)
-**`chap5_2024precompute2.py`** :contentReference[oaicite:14]{index=14}  
+**`chap5_2024precompute2.py`**  
 Loads the checkpoint and generates predictions for each init_date in 2024 by:
 - using the previous 15 observed days as input,
 - producing lead0 for init_date,
@@ -67,7 +67,7 @@ Loads the checkpoint and generates predictions for each init_date in 2024 by:
 ---
 
 ### 3) Evaluate 2024 forecasts (metrics by lead and horizon)
-**`evaluate_forecast_2024_horizons.py`** :contentReference[oaicite:15]{index=15}  
+**`evaluate_forecast_2024_horizons.py`** 
 Compares `sst_pred(init_time,lead)` against observed SST at `target_time = init_time + lead`.
 
 Computes:
@@ -82,7 +82,7 @@ Computes:
 ---
 
 ### 4) MHW products computed on forecast SST
-**`chap5_aftermodel_nhw2024.py`** :contentReference[oaicite:16]{index=16}  
+**`chap5_aftermodel_nhw2024.py`**  
 Computes daily:
 - `anomaly(init_time,lead,lat,lon)`
 - `intensity(init_time,lead,lat,lon)` = max(sst_pred − threshold, 0)
