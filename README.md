@@ -97,6 +97,83 @@ Key design choice:
 
 ---
 
+# 2025 Demo – CNN2D-LSTM Forecast + MHW Products
+
+This folder reproduces the Chapter 5 “demo/live-style” pipeline for 2025:
+1) train a 1-step CNN2D-LSTM model (trained through 2024),
+2) precompute pseudo-realtime forecasts for 2025 (iterative rollout; lead 0..6),
+3) evaluate forecasts vs observed SST (metrics by lead and horizon),
+4) compute forecast-based MHW fields (anomaly, intensity, MHW flag) for web display.
+
+**Model architecture**: see Chapter 3.  
+**MHW framework**: see Chapter 2.
+
+---
+
+## Scripts
+
+### 1) Train model (1982–2024)
+**`chap5_train2025.py`**
+Trains a 1-step CNN2D-LSTM with `seq_len=15` for iterative rollout.
+- Adam lr=1e-4, batch=32, dropout=0.1
+- early stopping patience=12 (max 500 epochs)
+- masked loss over valid ocean pixels
+- saves scaler + valid mask + config into checkpoint
+
+**Outputs**
+- `CNN2DLSTM_TRAIN_SEQ15_1STEP_1982_2024/model_save/model_cnn2dlstm_seq15_1step_best.pth`
+- `CNN2DLSTM_TRAIN_SEQ15_1STEP_1982_2024/model_save/ckpt_cnn2dlstm_seq15_1step.pt`
+
+---
+
+### 2) Precompute 2025 forecasts (lead 0..6)
+**`chap5_precompute2025.py`**  
+Loads the checkpoint and generates pseudo-realtime forecasts for 2025 using iterative rollout.
+Key setting:
+- `INIT_START` (default `2025-03-15`) — start date for initialisations
+End date is automatically chosen so target dates exist for lead 0..6.
+
+**Output**
+- `CNN2DLSTM_PRECOMP_2025_SEQ15/cnn2dlstm_pred_2025_lead0to6.zarr`
+  - `sst_pred(init_time, lead, lat, lon)`
+
+---
+
+### 3) Evaluate 2025 forecasts
+**`chap5_evaluate2025.py`**  
+Evaluates predictions against observed SST at `target_time = init_time + lead`.
+Metrics:
+- RMSE, MAE, Bias (obs − pred), R²
+Reports:
+- by lead (0..6)
+- by horizon (H = 3,5,7) pooling leads 0..H-1
+
+**Outputs**
+- `CNN2DLSTM_EVAL_2025_SEQ15/metrics_by_lead.csv`
+- `CNN2DLSTM_EVAL_2025_SEQ15/metrics_by_horizon.csv`
+
+---
+
+### 4) MHW products from 2025 forecasts
+**`chap5_mhw2025.py`**   
+Computes daily:
+- `anomaly(init_time,lead,lat,lon)` = sst_pred − seasonal climatology
+- `intensity(init_time,lead,lat,lon)` = max(sst_pred − threshold, 0)
+- `mhw_flag(init_time,lead,lat,lon)` = event-day flag
+
+Important implementation details:
+- climatology baseline: 1991–2024
+- percentile threshold: 99th
+- DOY mapping uses a leap-year reference; Feb 29 is interpolated
+- event rules: minDuration=5, optional gap-join with maxGap=4
+- observed buffer before init_time (default 30 days) is used for robust event detection
+  near the forecast start; only forecast flags are retained
+
+**Output**
+- `CNN2DLSTM_MHW_2025_SEQ15/cnn2dlstm_mhw_2025_lead0to6.zarr`
+
+---
+
 ## Requirements
 
 Python 3.9+ recommended.
