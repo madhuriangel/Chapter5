@@ -21,11 +21,11 @@ Outputs are written to a **Zarr store** (directory), enabling quick queries like
 
 MHW events are detected per grid cell using `detect()` in `alternew_hobday1.py`, an adaptation of the Hobday marine heatwave approach with configurable:
 - climatology baseline period (`climatologyPeriod`)
-- percentile threshold (`pctile`, e.g., 99th percentile)
+- percentile threshold (`pctile`, 99th percentile)
 - minimum duration (default in detector)
 - optional merging of events separated by small gaps (`joinAcrossGaps`, `maxGap`)
 
-See `alternew_hobday1.py` for the detailed implementation and assumptions. :contentReference[oaicite:2]{index=2}
+See `alternew_hobday1.py` for the detailed implementation and assumptions.
 
 # 2024 Test – CNN2D-LSTM Forecast + MHW Products Pipeline
 
@@ -67,7 +67,7 @@ Loads the checkpoint and generates predictions for each init_date in 2024 by:
 ---
 
 ### 3) Evaluate 2024 forecasts (metrics by lead and horizon)
-**`evaluate_forecast_2024_horizons.py`** 
+**`chap5_2024evaluate3.py`** 
 Compares `sst_pred(init_time,lead)` against observed SST at `target_time = init_time + lead`.
 
 Computes:
